@@ -1,0 +1,502 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Learning Platform</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        /* CSS Code */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            background-color: #2563eb;
+            color: white;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #e5e7eb;
+            margin-right: 4px;
+            cursor: pointer;
+        }
+
+        .badge.selected {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-item.active {
+            border-bottom-color: #2563eb;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        #loginForm {
+            max-width: 400px;
+            margin: 100px auto;
+        }
+
+        .hidden {
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <!-- HTML Code -->
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm" class="card">
+            <h2 style="margin-bottom: 20px;">AI Learning Platform</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+        </div>
+
+        <!-- Teacher Dashboard -->
+        <div id="teacherDashboard" class="hidden">
+            <div class="header">
+                <h2>Teacher Dashboard</h2>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+            <div class="nav">
+                <div class="nav-item active" onclick="showTeacherSection('createAssignment', event)">Create Assignment</div>
+                <div class="nav-item" onclick="showTeacherSection('viewProgress', event)">View Student Progress</div>
+            </div>
+            <div id="createAssignment">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Select Skills</label>
+                        <div id="skillsList"></div>
+                    </div>
+                    <div class="form-group">
+                        <label>Due Date</label>
+                        <input type="date" id="dueDate">
+                    </div>
+                    <button class="btn" onclick="createAssignment()">Create Assignment</button>
+                </div>
+            </div>
+            <div id="viewProgress" class="hidden">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Select Student</label>
+                        <select id="studentSelect" onchange="loadStudentProgress()"></select>
+                    </div>
+                    <div class="chart-container">
+                        <canvas id="progressChart"></canvas>
+                    </div>
+                    <div id="projectsList"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="hidden">
+            <div class="header">
+                <h2>Student Dashboard</h2>
+                <button class="btn btn-secondary" onclick="logout()">Logout</button>
+            </div>
+            <div class="nav">
+                <div class="nav-item active" onclick="showStudentSection('newProject', event)">Start New Project</div>
+                <div class="nav-item" onclick="showStudentSection('studentProgress', event)">View Progress</div>
+            </div>
+            <div id="newProject">
+                <div class="card">
+                    <div class="form-group">
+                        <label>Enter Topic</label>
+                        <input type="text" id="topicInput" placeholder="Enter your topic of interest">
+                    </div>
+                    <button class="btn" onclick="generateProjects()">Generate Project Ideas</button>
+                    <div id="projectOptions" class="hidden">
+                        <h3 style="margin: 20px 0;">Choose your project:</h3>
+                        <div id="projectsList"></div>
+                    </div>
+                </div>
+            </div>
+            <div id="studentProgress" class="hidden">
+                <div class="card">
+                    <div class="chart-container">
+                        <canvas id="studentProgressChart"></canvas>
+                    </div>
+                    <div id="skillProgress"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // JavaScript Code
+
+        // Sample data (in a real app, this would come from a backend)
+        const users = {
+            'teacher1': { password: 'pass123', role: 'teacher' },
+            'student1': { password: 'pass123', role: 'student' },
+            'student2': { password: 'pass123', role: 'student' }
+        };
+
+        const skills = [
+            'Creative Writing',
+            'Research Skills',
+            'Critical Thinking',
+            'Analysis',
+            'Communication',
+            'Problem Solving'
+        ];
+
+        let selectedSkills = [];
+        let currentUser = null;
+
+        // Initialize sample grades data
+        const grades = {
+            'student1': Array.from({length: 5}, (_, i) => ({
+                date: new Date(2024, i, 1).toISOString().split('T')[0],
+                grade: 70 + Math.random() * 25,
+                skills: skills.sort(() => 0.5 - Math.random()).slice(0, 2),
+                topic: `Project ${i + 1}`
+            })),
+            'student2': Array.from({length: 5}, (_, i) => ({
+                date: new Date(2024, i, 1).toISOString().split('T')[0],
+                grade: 70 + Math.random() * 25,
+                skills: skills.sort(() => 0.5 - Math.random()).slice(0, 2),
+                topic: `Project ${i + 1}`
+            }))
+        };
+
+        function login() {
+            const username = document.getElementById('username').value;
+            const password = document.getElementById('password').value;
+
+            if (users[username] && users[username].password === password) {
+                currentUser = username;
+                document.getElementById('loginForm').classList.add('hidden');
+                
+                if (users[username].role === 'teacher') {
+                    initializeTeacherDashboard();
+                } else {
+                    initializeStudentDashboard();
+                }
+            } else {
+                alert('Invalid credentials');
+            }
+        }
+
+        function logout() {
+            currentUser = null;
+            document.getElementById('teacherDashboard').classList.add('hidden');
+            document.getElementById('studentDashboard').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+        }
+
+        function initializeTeacherDashboard() {
+            document.getElementById('teacherDashboard').classList.remove('hidden');
+            initializeSkillsList();
+            initializeStudentSelect();
+        }
+
+        function initializeStudentDashboard() {
+            document.getElementById('studentDashboard').classList.remove('hidden');
+            showStudentProgress();
+        }
+
+        function initializeSkillsList() {
+            const skillsList = document.getElementById('skillsList');
+            skillsList.innerHTML = skills.map(skill => 
+                `<span class="badge" onclick="toggleSkill('${skill}')">${skill}</span>`
+            ).join('');
+        }
+
+        function initializeStudentSelect() {
+            const select = document.getElementById('studentSelect');
+            select.innerHTML = Object.keys(users)
+                .filter(user => users[user].role === 'student')
+                .map(student => `<option value="${student}">${student}</option>`)
+                .join('');
+        }
+
+        function toggleSkill(skill) {
+            const index = selectedSkills.indexOf(skill);
+            if (index === -1) {
+                selectedSkills.push(skill);
+            } else {
+                selectedSkills.splice(index, 1);
+            }
+            updateSkillBadges();
+        }
+
+        function updateSkillBadges() {
+            document.querySelectorAll('.badge').forEach(badge => {
+                if (selectedSkills.includes(badge.textContent)) {
+                    badge.classList.add('selected');
+                } else {
+                    badge.classList.remove('selected');
+                }
+            });
+        }
+
+        function createAssignment() {
+            const dueDate = document.getElementById('dueDate').value;
+            if (selectedSkills.length === 0 || !dueDate) {
+                alert('Please select skills and due date');
+                return;
+            }
+            alert('Assignment created successfully!');
+        }
+
+        function loadStudentProgress() {
+            const student = document.getElementById('studentSelect').value;
+            showProgressChart(student);
+            showProjectsList(student);
+        }
+
+        function showProgressChart(student) {
+            const ctx = document.getElementById('progressChart').getContext('2d');
+            const studentGrades = grades[student];
+
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Grades',
+                        data: studentGrades.map(grade => ({
+                            x: new Date(grade.date),
+                            y: grade.grade
+                        })),
+                        backgroundColor: '#2563eb'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+        }
+
+        function showProjectsList(student) {
+            const projectsList = document.getElementById('projectsList');
+            projectsList.innerHTML = grades[student].map(grade => `
+                <div class="project-card">
+                    <h3>${grade.topic}</h3>
+                    <p>Date: ${grade.date}</p>
+                    <p>Grade: ${grade.grade.toFixed(1)}%</p>
+                    <p>Skills: ${grade.skills.join(', ')}</p>
+                </div>
+            `).join('');
+        }
+
+        function generateProjects() {
+            const topic = document.getElementById('topicInput').value;
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            const projectOptions = document.getElementById('projectOptions');
+            projectOptions.classList.remove('hidden');
+
+            const projectsList = document.getElementById('projectsList');
+            projectsList.innerHTML = Array.from({length: 3}, (_, i) => `
+                <div class="project-card">
+                    <h3>Project Option ${i + 1}</h3>
+                    <p>${generateProjectPrompt(topic)}</p>
+                    <button class="btn" onclick="selectProject(${i})">Choose This Project</button>
+                </div>
+            `).join('');
+        }
+
+        function generateProjectPrompt(topic) {
+            const prompts = [
+                `Create an engaging analysis of ${topic} focusing on its historical development and future implications.`,
+                `Design a comprehensive research project exploring different aspects of ${topic} and their interconnections.`,
+                `Develop a creative presentation that explores innovative approaches to understanding ${topic}.`
+            ];
+            return prompts[Math.floor(Math.random() * prompts.length)];
+        }
+
+        function selectProject(index) {
+            alert(`Project ${index + 1} selected! You can now begin working on your submission.`);
+        }
+
+        function showStudentProgress() {
+            const studentGrades = grades[currentUser];
+            if (!studentGrades) return;
+
+            const ctx = document.getElementById('studentProgressChart').getContext('2d');
+            new Chart(ctx, {
+                type: 'scatter',
+                data: {
+                    datasets: [{
+                        label: 'Your Grades',
+                        data: studentGrades.map(grade => ({
+                            x: new Date(grade.date),
+                            y: grade.grade
+                        })),
+                        backgroundColor: '#2563eb'
+                    }]
+                },
+                options: {
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'month'
+                            }
+                        },
+                        y: {
+                            min: 0,
+                            max: 100
+                        }
+                    }
+                }
+            });
+
+            showSkillProgress(studentGrades);
+        }
+
+        function showSkillProgress(grades) {
+            const skillProgress = document.getElementById('skillProgress');
+            const skillGrades = {};
+            
+            grades.forEach(grade => {
+                grade.skills.forEach(skill => {
+                    if (!skillGrades[skill]) {
+                        skillGrades[skill] = [];
+                    }
+                    skillGrades[skill].push(grade.grade);
+                });
+            });
+
+            skillProgress.innerHTML = Object.keys(skillGrades).map(skill => {
+                const averageGrade = skillGrades[skill].reduce((a, b) => a + b, 0) / skillGrades[skill].length;
+                return `<p>${skill}: ${averageGrade.toFixed(1)}%</p>`;
+            }).join('');
+        }
+
+        // Additional functions to handle navigation and display sections
+        function showTeacherSection(sectionId, event) {
+            document.getElementById('createAssignment').classList.add('hidden');
+            document.getElementById('viewProgress').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            document.querySelectorAll('#teacherDashboard .nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+
+        function showStudentSection(sectionId, event) {
+            document.getElementById('newProject').classList.add('hidden');
+            document.getElementById('studentProgress').classList.add('hidden');
+            document.getElementById(sectionId).classList.remove('hidden');
+
+            document.querySelectorAll('#studentDashboard .nav-item').forEach(item => item.classList.remove('active'));
+            event.target.classList.add('active');
+        }
+    </script>
+</body>
+</html>
