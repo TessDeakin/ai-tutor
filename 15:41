@@ -1,0 +1,388 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Athena Learning Platform</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        /* CSS Code */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        body {
+            background-color: #f5f5f5;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        .header {
+            position: relative;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        .quote {
+            font-style: italic;
+            color: #6b7280;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            background-color: #2563eb;
+            color: white;
+            font-weight: 500;
+        }
+
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        .btn-secondary {
+            background-color: #6b7280;
+        }
+
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+        }
+
+        .badge {
+            padding: 4px 8px;
+            border-radius: 9999px;
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #e5e7eb;
+            margin-right: 4px;
+            cursor: pointer;
+        }
+
+        .badge.selected {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        .nav {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+        }
+
+        .nav-item.active {
+            border-bottom-color: #2563eb;
+            font-weight: 500;
+        }
+
+        .chart-container {
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        #loginForm {
+            max-width: 400px;
+            margin: 100px auto;
+            position: relative;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        /* Fade-in and fade-out animation */
+        .fade-in-out {
+            opacity: 0;
+            animation: fadeInOut 10s infinite;
+        }
+
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            50% { opacity: 1; }
+            60% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        .textarea {
+            width: 100%;
+            height: 200px;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 4px;
+            margin-top: 8px;
+        }
+
+        .status-submitted {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-graded {
+            color: blue;
+            font-weight: bold;
+        }
+
+        .grade {
+            font-weight: bold;
+        }
+
+        .comment {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f0f0f0;
+            border-radius: 4px;
+        }
+
+        /* Style for the word 'Athena' */
+        .athena-blue {
+            color: blue;
+        }
+    </style>
+</head>
+<body>
+    <!-- HTML Code -->
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm" class="card">
+            <h2 style="margin-bottom: 20px;"><span class="athena-blue">Athena</span> Learning Platform</h2>
+            <div class="form-group">
+                <label>Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <div class="form-group">
+                <label>Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <button class="btn" onclick="login()">Login</button>
+            <div class="quote fade-in-out" id="loginQuote"></div>
+        </div>
+
+        <!-- Teacher Dashboard -->
+        <!-- [Teacher Dashboard Code Remains Unchanged] -->
+
+        <!-- Student Dashboard -->
+        <!-- [Student Dashboard Code Remains Unchanged] -->
+    </div>
+
+    <script>
+        // JavaScript Code
+
+        // Sample data (in a real app, this would come from a backend)
+        const users = {
+            'teacher1': { password: 'pass123', role: 'teacher' },
+            'student1': { password: 'pass123', role: 'student' },
+            'student2': { password: 'pass123', role: 'student' },
+            'student3': { password: 'pass123', role: 'student' }
+        };
+
+        const skills = [
+            'Creative Writing',
+            'Research Skills',
+            'Critical Thinking',
+            'Analysis',
+            'Communication',
+            'Problem Solving'
+        ];
+
+        const quotes = [
+            'Education is the passport to the future, for tomorrow belongs to those who prepare for it today. - Malcolm X',
+            'The beautiful thing about learning is that no one can take it away from you. - B.B. King',
+            'The purpose of education is to replace an empty mind with an open one. - Malcolm Forbes',
+            'The mind is not a vessel to be filled but a fire to be ignited. - Plutarch',
+            'Education is not preparation for life; education is life itself. - John Dewey'
+        ];
+
+        const gradeBoundaries = [
+            { grade: 'A*', minScore: 90 },
+            { grade: 'A', minScore: 80 },
+            { grade: 'B', minScore: 70 },
+            { grade: 'C', minScore: 60 },
+            { grade: 'D', minScore: 50 },
+            { grade: 'E', minScore: 40 },
+            { grade: 'F', minScore: 0 }
+        ];
+
+        let selectedSkills = [];
+        let currentUser = null;
+        let assignments = [];
+        let selectedAssignment = null;
+        let studentProjects = {}; // Store student's selected projects and submissions
+        let studentSubmissions = {}; // For teacher to view student submissions
+
+        // [Login, Logout, and Initialization Functions Remain Unchanged]
+
+        // Replace the generateProjects() function
+        function generateProjects() {
+            const topic = document.getElementById('studentTopic').value;
+            if (!topic) {
+                alert('Please enter a topic');
+                return;
+            }
+
+            // Show a loading message or indicator
+            document.getElementById('projectsList').innerHTML = '<p>Generating project ideas...</p>';
+            document.getElementById('displayProjectsSection').classList.remove('hidden');
+            window.scrollTo(0, document.body.scrollHeight);
+
+            // Call the API to generate project ideas
+            generateProjectIdeasAPI(topic)
+                .then(projectIdeas => {
+                    displayProjectIdeas(projectIdeas);
+                })
+                .catch(error => {
+                    console.error('Error generating project ideas:', error);
+                    alert('There was an error generating project ideas. Please try again later.');
+                });
+        }
+
+        function generateProjectIdeasAPI(topic) {
+            return new Promise((resolve, reject) => {
+                const endpoint = 'https://educationhackathon.openai.azure.com/openai/deployments/gpt-4o/chat/completions?api-version=2024-08-01-preview'; // Replace with your API endpoint
+                const apiKey = APIKEY; // Replace with your API key
+
+                const messages = [
+                    { role: "system", content: "You are an AI assistant that helps generate essay topics for students." },
+                    { role: "user", content: `Generate three essay topics for a Key Stage 3 student based on the topic "${topic}". Each topic should be appropriate for a student aged 11-14 and include specific references, such as historical periods, to align with the KS3 curriculum. Present the topics as a numbered list.` }
+                ];
+
+                const requestBody = {
+                    model: "gpt-4o", // Specify the model if required
+                    messages: messages,
+                    max_tokens: 250,
+                    temperature: 0.7,
+                    top_p: 1,
+                    n: 1,
+                    stop: null
+                };
+
+                fetch(endpoint, {
+                    method: "POST",
+                    headers: {
+                        "Content-Type": "application/json",
+                        "Authorization": `Bearer ${apiKey}`
+                    },
+                    body: JSON.stringify(requestBody)
+                })
+                .then(response => {
+                    if (!response.ok) {
+                        throw new Error(`HTTP error! Status: ${response.status}`);
+                    }
+                    return response.json();
+                })
+                .then(data => {
+                    const assistantReply = data.choices[0].message.content;
+                    // Parse the assistantReply to extract the project ideas
+                    const projectIdeas = parseProjectIdeas(assistantReply);
+                    resolve(projectIdeas);
+                })
+                .catch(error => {
+                    reject(error);
+                });
+            });
+        }
+
+        function parseProjectIdeas(assistantReply) {
+            // Split the assistant's reply into individual ideas
+            const ideas = assistantReply.split(/\d+\.\s+/).filter(s => s.trim() !== '');
+            return ideas;
+        }
+
+        // Update the displayProjectIdeas function if necessary
+        function displayProjectIdeas(ideas) {
+            const projectsList = document.getElementById('projectsList');
+            projectsList.innerHTML = ideas.map((idea, i) => `
+                <div class="project-card">
+                    <h3>Essay Option ${i + 1}</h3>
+                    <p>${idea}</p>
+                    <button class="btn" onclick="selectProject(${i}, '${idea.replace(/'/g, "\\'")}')">Choose This Essay</button>
+                </div>
+            `).join('');
+            document.getElementById('displayProjectsSection').classList.remove('hidden');
+            window.scrollTo(0, document.body.scrollHeight);
+        }
+
+        // [Rest of your JavaScript code remains unchanged]
+
+        // Login, Logout, Initialization, and other functions remain unchanged.
+        // Ensure that the functions related to project selection, submission, and grading are intact.
+
+        // Display quotes on login page
+        function displayLoginQuotes() {
+            const quoteElement = document.getElementById('loginQuote');
+            let index = 0;
+
+            function showNextQuote() {
+                quoteElement.textContent = quotes[index];
+                index = (index + 1) % quotes.length;
+            }
+
+            showNextQuote();
+            setInterval(showNextQuote, 7500); // Change quote every 7.5 seconds
+        }
+
+        // Initialize the login page quotes
+        displayLoginQuotes();
+    </script>
+</body>
+</html>
