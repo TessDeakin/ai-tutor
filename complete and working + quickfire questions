@@ -1,0 +1,1319 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <!-- Meta tags for character encoding and responsive design -->
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Athena Learning Platform</title>
+    <!-- Include Chart.js library -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/3.7.0/chart.min.js"></script>
+    <style>
+        /* CSS Code */
+
+        /* Reset default margins and paddings, set box-sizing for all elements */
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            /* Use a system font stack for consistent typography */
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+        }
+
+        /* Set background color for the body */
+        body {
+            background-color: #f5f5f5;
+        }
+
+        /* Container class to center content and set maximum width */
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+
+        /* Card style for content blocks with shadow and padding */
+        .card {
+            background: white;
+            border-radius: 8px;
+            padding: 20px;
+            /* Box shadow for subtle depth */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            margin-bottom: 20px;
+        }
+
+        /* Header style for dashboards */
+        .header {
+            position: relative;
+            /* Use flexbox to align items */
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+        }
+
+        /* Style for rotating quotes on the login page */
+        .quote {
+            font-style: italic;
+            color: #6b7280;
+            font-size: 16px;
+            text-align: center;
+            margin-top: 20px;
+        }
+
+        /* Base button styles */
+        .btn {
+            padding: 8px 16px;
+            border-radius: 4px;
+            border: none;
+            cursor: pointer;
+            background-color: #2563eb; /* Primary blue color */
+            color: white;
+            font-weight: 500;
+            transition: background-color 0.3s ease;
+        }
+
+        /* Hover effect for primary buttons */
+        .btn:hover {
+            background-color: #1d4ed8;
+        }
+
+        /* Secondary button styles */
+        .btn-secondary {
+            background-color: #6b7280; /* Gray color */
+        }
+
+        /* Hover effect for secondary buttons */
+        .btn-secondary:hover {
+            background-color: #4b5563;
+        }
+
+        /* Form group for spacing between labels and inputs */
+        .form-group {
+            margin-bottom: 16px;
+        }
+
+        /* Label styles */
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        /* Input and textarea styles */
+        .form-group input,
+        .form-group select,
+        .form-group textarea {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db; /* Light gray border */
+            border-radius: 4px;
+        }
+
+        /* Badge styles for skills and selections */
+        .badge {
+            padding: 4px 8px;
+            border-radius: 9999px; /* Fully rounded */
+            font-size: 12px;
+            font-weight: 500;
+            background-color: #e5e7eb; /* Light gray background */
+            margin-right: 4px;
+            cursor: pointer;
+            transition: background-color 0.3s ease, color 0.3s ease;
+        }
+
+        /* Style for selected badges */
+        .badge.selected {
+            background-color: #2563eb;
+            color: white;
+        }
+
+        /* Project card styles */
+        .project-card {
+            border: 1px solid #e5e7eb;
+            border-radius: 4px;
+            padding: 16px;
+            margin-bottom: 16px;
+        }
+
+        /* Navigation styles */
+        .nav {
+            display: flex;
+            gap: 16px;
+            margin-bottom: 20px;
+            align-items: center;
+            justify-content: flex-start;
+        }
+
+        .nav-item {
+            padding: 8px 16px;
+            cursor: pointer;
+            border-bottom: 2px solid transparent;
+            background-color: #e5e7eb;
+            border-radius: 4px;
+            transition: background-color 0.3s ease;
+        }
+
+        .nav-item:hover {
+            background-color: #d1d5db;
+        }
+
+        .nav-item.active {
+            border-bottom-color: #2563eb; /* Blue underline for active item */
+            background-color: #d1d5db;
+            font-weight: 500;
+        }
+
+        /* Chart container styles */
+        .chart-container {
+            height: 400px;
+            margin-bottom: 20px;
+        }
+
+        /* Styles for the login form */
+        #loginForm,
+        #registerForm {
+            max-width: 400px;
+            margin: 50px auto;
+            position: relative;
+        }
+
+        /* Utility class to hide elements */
+        .hidden {
+            display: none;
+        }
+
+        /* Fade-in and fade-out animation for quotes */
+        .fade-in-out {
+            opacity: 0;
+            animation: fadeInOut 10s infinite;
+        }
+
+        /* Keyframes for the fade-in and fade-out effect */
+        @keyframes fadeInOut {
+            0% { opacity: 0; }
+            10% { opacity: 1; }
+            50% { opacity: 1; }
+            60% { opacity: 0; }
+            100% { opacity: 0; }
+        }
+
+        /* Styles for different statuses */
+        .status-submitted {
+            color: green;
+            font-weight: bold;
+        }
+
+        .status-pending {
+            color: orange;
+            font-weight: bold;
+        }
+
+        .status-graded {
+            color: blue;
+            font-weight: bold;
+        }
+
+        /* Style for grades */
+        .grade {
+            font-weight: bold;
+        }
+
+        /* Styles for comments section */
+        .comment {
+            margin-top: 8px;
+            padding: 8px;
+            background-color: #f0f0f0; /* Light gray */
+            border-radius: 4px;
+        }
+
+        /* Style for the word 'Athena' to appear in blue */
+        .athena-blue {
+            color: blue;
+        }
+
+        /* Style for the login and registration error messages */
+        .error-message {
+            color: red;
+            margin-bottom: 10px;
+        }
+
+        /* Toggle Links */
+        .toggle-link {
+            margin-top: 10px;
+            text-align: center;
+        }
+
+        .toggle-link span {
+            color: #2563eb;
+            cursor: pointer;
+            text-decoration: underline;
+        }
+
+        /* Modal Styles */
+        .modal {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right:0;
+            bottom:0;
+            background-color: rgba(0,0,0,0.5);
+            display: none; /* Hidden by default */
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-content {
+            background-color: white;
+            padding: 20px;
+            border-radius: 8px;
+            width: 80%;
+            max-width: 800px;
+            max-height: 80%;
+            overflow-y: auto;
+            position: relative;
+        }
+
+        .close-button {
+            position: absolute;
+            top:10px;
+            right:15px;
+            font-size: 24px;
+            cursor: pointer;
+        }
+
+        /* Responsive adjustments */
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95%;
+            }
+        }
+    </style>
+</head>
+<body>
+    <!-- Main container for the application -->
+    <div class="container">
+        <!-- Login Form -->
+        <div id="loginForm" class="card">
+            <!-- Application title with 'Athena' in blue -->
+            <h2 style="margin-bottom: 20px;"><span class="athena-blue">Athena</span> Learning Platform</h2>
+            <!-- Error message display -->
+            <div id="loginError" class="error-message"></div>
+            <!-- Username input -->
+            <div class="form-group">
+                <label for="username">Username</label>
+                <input type="text" id="username" placeholder="Enter username">
+            </div>
+            <!-- Password input -->
+            <div class="form-group">
+                <label for="password">Password</label>
+                <input type="password" id="password" placeholder="Enter password">
+            </div>
+            <!-- Login button -->
+            <button class="btn" id="loginButton">Login</button>
+            <!-- Toggle to Register -->
+            <p class="toggle-link">Don't have an account? <span id="showRegister">Register here</span></p>
+            <!-- Rotating quote display -->
+            <div class="quote fade-in-out" id="loginQuote"></div>
+        </div>
+        <!-- Registration Form -->
+        <div id="registerForm" class="card hidden">
+            <h2 style="margin-bottom: 20px;"><span class="athena-blue">Athena</span> Register</h2>
+            <!-- Error message display -->
+            <div id="registerError" class="error-message"></div>
+            <!-- Username input -->
+            <div class="form-group">
+                <label for="reg_username">Username</label>
+                <input type="text" id="reg_username" placeholder="Enter username">
+            </div>
+            <!-- Password input -->
+            <div class="form-group">
+                <label for="reg_password">Password</label>
+                <input type="password" id="reg_password" placeholder="Enter password">
+            </div>
+            <!-- Role selection -->
+            <div class="form-group">
+                <label for="reg_role">Role</label>
+                <select id="reg_role">
+                    <option value="">Select Role</option>
+                    <option value="teacher">Teacher</option>
+                    <option value="student">Student</option>
+                </select>
+            </div>
+            <!-- Register button -->
+            <button class="btn" id="registerButton">Register</button>
+            <!-- Toggle to Login -->
+            <p class="toggle-link">Already have an account? <span id="showLogin">Login here</span></p>
+        </div>
+        <!-- Teacher Dashboard -->
+        <div id="teacherDashboard" class="hidden">
+            <!-- Header with dashboard title and logout button -->
+            <div class="header">
+                <h2><span class="athena-blue">Athena</span> Teacher Dashboard</h2>
+                <button class="btn btn-secondary" id="logoutTeacher">Logout</button>
+            </div>
+            <!-- Navigation for Teacher -->
+            <div class="nav">
+                <div class="nav-item active" data-section="createAssignment">Create Assignment</div>
+                <div class="nav-item" data-section="viewAssignments">View Assignments</div>
+                <div class="nav-item" data-section="studentSubmissions">Student Submissions</div>
+                <div class="nav-item" data-section="classAverages">Class Averages</div>
+            </div>
+            <!-- Teacher Content Area -->
+            <div id="teacherContent">
+                <!-- Default Section: Create Assignment -->
+                <div class="card">
+                    <h3>Create Assignment</h3>
+                    <!-- Assignment Type Selection -->
+                    <div class="form-group">
+                        <label for="assignmentType">Assignment Type</label>
+                        <select id="assignmentType">
+                            <option value="project">Project</option>
+                            <option value="quickfire">Quickfire Questions</option>
+                        </select>
+                    </div>
+                    <!-- Project Assignment Fields -->
+                    <div id="projectFields">
+                        <div class="form-group">
+                            <label>Select Skills</label>
+                            <div id="skillsList"></div>
+                        </div>
+                        <div class="form-group">
+                            <label>Due Date</label>
+                            <input type="date" id="dueDate">
+                        </div>
+                        <button class="btn" id="createAssignmentButton">Create Assignment</button>
+                    </div>
+                    <!-- Quickfire Questions Assignment Fields -->
+                    <div id="quickfireFields" class="hidden">
+                        <div class="form-group">
+                            <label>Select Topics</label>
+                            <div id="quickfireTopicsList"></div>
+                        </div>
+                        <button class="btn" id="createQuickfireAssignmentButton">Create Quickfire Questions</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- Student Dashboard -->
+        <div id="studentDashboard" class="hidden">
+            <!-- Header with dashboard title and logout button -->
+            <div class="header">
+                <h2><span class="athena-blue">Athena</span> Student Dashboard</h2>
+                <button class="btn btn-secondary" id="logoutStudent">Logout</button>
+            </div>
+            <!-- Navigation for Student -->
+            <div class="nav">
+                <div class="nav-item active" data-section="viewAssignments">Your Assignments</div>
+                <div class="nav-item" data-section="mySubmissions">My Submissions</div>
+                <div class="nav-item" data-section="averageGrade">Average Grade</div>
+            </div>
+            <!-- Student Content Area -->
+            <div id="studentContent">
+                <!-- Default Section: View Assignments -->
+                <div class="card">
+                    <h3>Your Assignments</h3>
+                    <div id="assignmentsList"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Modal for Quickfire Questions -->
+    <div class="modal" id="quickfireModal">
+        <div class="modal-content">
+            <span class="close-button" id="closeQuickfireModal">&times;</span>
+            <h3>Quickfire Questions</h3>
+            <form id="quickfireForm">
+                <div id="questionsContainer"></div>
+                <button type="submit" class="btn">Submit Answers</button>
+            </form>
+        </div>
+    </div>
+    <script>
+        // JavaScript Code
+
+        // Sample user data (In a real application, this would come from a backend)
+        const users = {
+            'teacher1': { password: 'pass123', role: 'teacher' },
+            'student1': { password: 'pass123', role: 'student' },
+            'student2': { password: 'pass123', role: 'student' },
+            'student3': { password: 'pass123', role: 'student' }
+        };
+
+        // List of skills for assignment creation
+        const skills = [
+            'Creative Writing',
+            'Research Skills',
+            'Critical Thinking',
+            'Analysis',
+            'Communication',
+            'Problem Solving'
+        ];
+
+        // List of topics for quickfire questions
+        const quickfireTopics = [
+            'History',
+            'Mathematics',
+            'Science',
+            'Literature',
+            'Art',
+            'Geography'
+        ];
+
+        // Array of motivational quotes displayed on the login page
+        const quotes = [
+            'Education is the passport to the future, for tomorrow belongs to those who prepare for it today. - Malcolm X',
+            'The beautiful thing about learning is that no one can take it away from you. - B.B. King',
+            'The purpose of education is to replace an empty mind with an open one. - Malcolm Forbes',
+            'The mind is not a vessel to be filled but a fire to be ignited. - Plutarch',
+            'Education is not preparation for life; education is life itself. - John Dewey'
+        ];
+
+        // Grade boundaries for calculating letter grades
+        const gradeBoundaries = [
+            { grade: 'A*', minScore: 90 },
+            { grade: 'A', minScore: 80 },
+            { grade: 'B', minScore: 70 },
+            { grade: 'C', minScore: 60 },
+            { grade: 'D', minScore: 50 },
+            { grade: 'E', minScore: 40 },
+            { grade: 'F', minScore: 0 }
+        ];
+
+        // Variables to store the state of the application
+        let selectedSkills = [];
+        let selectedQuickfireTopics = [];
+        let currentUser = null;
+        let assignments = [];
+        let submissions = [];
+
+        // Function to handle form toggling between Login and Register
+        function toggleForms() {
+            document.getElementById('loginForm').classList.toggle('hidden');
+            document.getElementById('registerForm').classList.toggle('hidden');
+            clearErrors();
+        }
+
+        // Function to clear error messages
+        function clearErrors() {
+            document.getElementById('loginError').textContent = '';
+            document.getElementById('registerError').textContent = '';
+        }
+
+        // Function to handle user registration
+        function register() {
+            const username = document.getElementById('reg_username').value.trim();
+            const password = document.getElementById('reg_password').value;
+            const role = document.getElementById('reg_role').value;
+            if (!username || !password || !role) {
+                document.getElementById('registerError').textContent = 'All fields are required.';
+                return;
+            }
+            if (users[username]) {
+                document.getElementById('registerError').textContent = 'Username already exists.';
+                return;
+            }
+            // Register the user
+            users[username] = { password, role };
+            alert('Registration successful! You can now log in.');
+            toggleForms();
+        }
+
+        // Function to handle user login
+        function login() {
+            const username = document.getElementById('username').value.trim();
+            const password = document.getElementById('password').value;
+            // Check if the user exists and the password matches
+            if (users[username] && users[username].password === password) {
+                currentUser = { username, role: users[username].role };
+                document.getElementById('loginForm').classList.add('hidden');
+                document.getElementById('registerForm').classList.add('hidden');
+                // Initialize the appropriate dashboard based on the user's role
+                if (currentUser.role === 'teacher') {
+                    initializeTeacherDashboard();
+                } else {
+                    initializeStudentDashboard();
+                }
+            } else {
+                // Display an error message if credentials are invalid
+                document.getElementById('loginError').textContent = 'Invalid username or password.';
+            }
+        }
+
+        // Function to handle user logout
+        function logout() {
+            currentUser = null;
+            // Hide dashboards and show login form
+            document.getElementById('teacherDashboard').classList.add('hidden');
+            document.getElementById('studentDashboard').classList.add('hidden');
+            document.getElementById('loginForm').classList.remove('hidden');
+            // Clear form fields
+            document.getElementById('username').value = '';
+            document.getElementById('password').value = '';
+            // Reset navigation
+            resetNavigation();
+        }
+
+        // Function to initialize the teacher dashboard
+        function initializeTeacherDashboard() {
+            document.getElementById('teacherDashboard').classList.remove('hidden');
+            loadTeacherSection('createAssignment');
+            displayClassAverages();
+        }
+
+        // Function to initialize the student dashboard
+        function initializeStudentDashboard() {
+            document.getElementById('studentDashboard').classList.remove('hidden');
+            loadStudentSection('viewAssignments');
+            displayStudentAverageGrade();
+        }
+
+        // Function to initialize the skills list for the teacher
+        function initializeSkillsList() {
+            const skillsList = document.getElementById('skillsList');
+            // Generate badges for each skill
+            skillsList.innerHTML = skills.map(skill => 
+                `<span class="badge" data-skill="${skill}">${skill}</span>`
+            ).join('');
+            // Add event listeners to badges
+            document.querySelectorAll('#skillsList .badge').forEach(badge => {
+                badge.addEventListener('click', () => {
+                    const skill = badge.getAttribute('data-skill');
+                    toggleSkill(skill);
+                });
+            });
+        }
+
+        // Function to toggle the selection of a skill
+        function toggleSkill(skill) {
+            const index = selectedSkills.indexOf(skill);
+            if (index === -1) {
+                selectedSkills.push(skill);
+            } else {
+                selectedSkills.splice(index, 1);
+            }
+            updateSkillBadges();
+        }
+
+        // Function to update the visual state of skill badges
+        function updateSkillBadges() {
+            document.querySelectorAll('#skillsList .badge').forEach(badge => {
+                if (selectedSkills.includes(badge.getAttribute('data-skill'))) {
+                    badge.classList.add('selected');
+                } else {
+                    badge.classList.remove('selected');
+                }
+            });
+        }
+
+        // Function to initialize the quickfire topics list for the teacher
+        function initializeQuickfireTopicsList() {
+            const topicsList = document.getElementById('quickfireTopicsList');
+            // Generate badges for each topic
+            topicsList.innerHTML = quickfireTopics.map(topic => 
+                `<span class="badge" data-topic="${topic}">${topic}</span>`
+            ).join('');
+            // Add event listeners to badges
+            document.querySelectorAll('#quickfireTopicsList .badge').forEach(badge => {
+                badge.addEventListener('click', () => {
+                    const topic = badge.getAttribute('data-topic');
+                    toggleQuickfireTopic(topic);
+                });
+            });
+        }
+
+        // Function to toggle the selection of a quickfire topic
+        function toggleQuickfireTopic(topic) {
+            const index = selectedQuickfireTopics.indexOf(topic);
+            if (index === -1) {
+                selectedQuickfireTopics.push(topic);
+            } else {
+                selectedQuickfireTopics.splice(index, 1);
+            }
+            updateQuickfireTopicBadges();
+        }
+
+        // Function to update the visual state of quickfire topic badges
+        function updateQuickfireTopicBadges() {
+            document.querySelectorAll('#quickfireTopicsList .badge').forEach(badge => {
+                if (selectedQuickfireTopics.includes(badge.getAttribute('data-topic'))) {
+                    badge.classList.add('selected');
+                } else {
+                    badge.classList.remove('selected');
+                }
+            });
+        }
+
+        // Function to create a Project Assignment
+        function createAssignment() {
+            const dueDate = document.getElementById('dueDate').value;
+            if (selectedSkills.length === 0 || !dueDate) {
+                alert('Please select skills and due date.');
+                return;
+            }
+            const assignment = {
+                id: assignments.length + 1,
+                type: 'project',
+                skills: [...selectedSkills],
+                dueDate: dueDate
+            };
+            assignments.push(assignment);
+            selectedSkills = [];
+            updateSkillBadges();
+            document.getElementById('dueDate').value = '';
+            loadTeacherSection('viewAssignments');
+            alert('Project assignment created successfully!');
+        }
+
+        // Function to create a Quickfire Questions Assignment
+        function createQuickfireAssignment() {
+            if (selectedQuickfireTopics.length === 0) {
+                alert('Please select at least one topic for Quickfire Questions.');
+                return;
+            }
+            const assignment = {
+                id: assignments.length + 1,
+                type: 'quickfire',
+                topics: [...selectedQuickfireTopics]
+            };
+            assignments.push(assignment);
+            selectedQuickfireTopics = [];
+            updateQuickfireTopicBadges();
+            loadTeacherSection('viewAssignments');
+            alert('Quickfire Questions assignment created successfully!');
+        }
+
+        // Function to load different sections in Teacher Dashboard
+        function loadTeacherSection(section) {
+            const teacherContent = document.getElementById('teacherContent');
+            teacherContent.innerHTML = ''; // Clear previous content
+            if (section === 'createAssignment') {
+                teacherContent.innerHTML = `
+                    <div class="card">
+                        <h3>Create Assignment</h3>
+                        <!-- Assignment Type Selection -->
+                        <div class="form-group">
+                            <label for="assignmentType">Assignment Type</label>
+                            <select id="assignmentType">
+                                <option value="project">Project</option>
+                                <option value="quickfire">Quickfire Questions</option>
+                            </select>
+                        </div>
+                        <!-- Project Assignment Fields -->
+                        <div id="projectFields">
+                            <div class="form-group">
+                                <label>Select Skills</label>
+                                <div id="skillsList"></div>
+                            </div>
+                            <div class="form-group">
+                                <label>Due Date</label>
+                                <input type="date" id="dueDate">
+                            </div>
+                            <button class="btn" id="createAssignmentButton">Create Assignment</button>
+                        </div>
+                        <!-- Quickfire Questions Assignment Fields -->
+                        <div id="quickfireFields" class="hidden">
+                            <div class="form-group">
+                                <label>Select Topics</label>
+                                <div id="quickfireTopicsList"></div>
+                            </div>
+                            <button class="btn" id="createQuickfireAssignmentButton">Create Quickfire Questions</button>
+                        </div>
+                    </div>
+                `;
+                initializeSkillsList();
+                initializeQuickfireTopicsList();
+                // Attach event listener to assignmentType select
+                document.getElementById('assignmentType').addEventListener('change', toggleAssignmentType);
+                // Attach event listeners to buttons
+                document.getElementById('createAssignmentButton').addEventListener('click', createAssignment);
+                document.getElementById('createQuickfireAssignmentButton').addEventListener('click', createQuickfireAssignment);
+            } else if (section === 'viewAssignments') {
+                if (assignments.length === 0) {
+                    teacherContent.innerHTML = '<p>No assignments created yet.</p>';
+                    return;
+                }
+                teacherContent.innerHTML = `
+                    <div class="card">
+                        <h3>Assignments</h3>
+                        ${assignments.map(assignment => `
+                            <div class="project-card">
+                                <p><strong>Assignment ID:</strong> ${assignment.id}</p>
+                                <p><strong>Type:</strong> ${assignment.type === 'project' ? 'Project' : 'Quickfire Questions'}</p>
+                                ${assignment.type === 'project' ? `
+                                    <p><strong>Skills:</strong> ${assignment.skills.join(', ')}</p>
+                                    <p><strong>Due Date:</strong> ${assignment.dueDate}</p>
+                                ` : `
+                                    <p><strong>Topics:</strong> ${assignment.topics.join(', ')}</p>
+                                `}
+                                <button class="btn" onclick="viewSubmissions(${assignment.id})">View Submissions</button>
+                            </div>
+                        `).join('')}
+                    </div>
+                `;
+            } else if (section === 'studentSubmissions') {
+                if (submissions.length === 0) {
+                    teacherContent.innerHTML = '<p>No submissions yet.</p>';
+                    return;
+                }
+                teacherContent.innerHTML = `
+                    <div class="card">
+                        <h3>Student Submissions</h3>
+                        ${submissions.length > 0 ? submissions.map(sub => `
+                            <div class="project-card">
+                                <p><strong>Assignment ID:</strong> ${sub.assignmentId}</p>
+                                <p><strong>Student:</strong> ${sub.student}</p>
+                                <p><strong>Type:</strong> ${sub.type === 'project' ? 'Project' : 'Quickfire Questions'}</p>
+                                ${sub.type === 'project' ? `
+                                    <p><strong>Project Idea:</strong> ${sub.projectIdea}</p>
+                                ` : `
+                                    <p><strong>Topic:</strong> ${sub.topic}</p>
+                                    <p><strong>Questions and Answers:</strong></p>
+                                    <ol>
+                                        ${sub.questions.map((q, idx) => `
+                                            <li>
+                                                <strong>${q}</strong><br>
+                                                <em>Answer:</em> ${sub.answers[idx] || '<span style="color: #6b7280;">No answer provided.</span>'}
+                                            </li>
+                                        `).join('')}
+                                    </ol>
+                                `}
+                                <p><strong>Submission:</strong> ${sub.submission}</p>
+                                <p><strong>Status:</strong> <span class="${
+                                    sub.status === 'submitted' ? 'status-submitted' : 
+                                    sub.status === 'graded' ? 'status-graded' : 'status-pending'}">${
+                                        sub.status === 'submitted' ? 'Submitted' : 
+                                        sub.status === 'graded' ? 'Graded' : 'Pending'}</span></p>
+                                ${sub.status !== 'graded' ? `<button class="btn" onclick="gradeSubmission(${sub.id})">Grade Submission</button>` : ''}
+                                ${sub.grade !== null ? `<p><strong>Grade:</strong> ${sub.grade}/100 (${getGradeLetter(sub.grade)})</p>` : ''}
+                                ${sub.comments ? `<p><strong>Comments:</strong> ${sub.comments}</p>` : ''}
+                            </div>
+                        `).join('') : '<p>No submissions yet.</p>'}
+                    </div>
+                `;
+            } else if (section === 'classAverages') {
+                if (assignments.length === 0) {
+                    teacherContent.innerHTML = '<p>No assignments to calculate averages.</p>';
+                    return;
+                }
+                const averages = calculateClassAverages();
+                teacherContent.innerHTML = `
+                    <div class="card">
+                        <h3>Class Averages</h3>
+                        <p><strong>Overall Class Average:</strong> ${averages.overall !== null ? averages.overall.toFixed(2) + '/100' : 'N/A'}</p>
+                        <div class="chart-container">
+                            <canvas id="classAverageChart"></canvas>
+                        </div>
+                        <h4>Student Averages:</h4>
+                        ${averages.studentAverages.length > 0 ? `
+                            <ul>
+                                ${averages.studentAverages.map(sa => `<li><strong>${sa.student}:</strong> ${sa.average.toFixed(2)}/100</li>`).join('')}
+                            </ul>
+                        ` : '<p>No graded submissions yet.</p>'}
+                    </div>
+                `;
+                renderClassAverageChart(averages.studentAverages);
+            }
+        }
+
+        // Function to toggle between Project and Quickfire Questions fields
+        function toggleAssignmentType(event) {
+            const type = event.target.value;
+            if (type === 'project') {
+                document.getElementById('projectFields').classList.remove('hidden');
+                document.getElementById('quickfireFields').classList.add('hidden');
+            } else if (type === 'quickfire') {
+                document.getElementById('projectFields').classList.add('hidden');
+                document.getElementById('quickfireFields').classList.remove('hidden');
+            }
+        }
+
+        // Function to view submissions for a specific assignment
+        function viewSubmissions(assignmentId) {
+            const assignment = assignments.find(a => a.id === assignmentId);
+            if (!assignment) return;
+            const relevantSubmissions = submissions.filter(s => s.assignmentId === assignmentId);
+            if (relevantSubmissions.length === 0) {
+                alert(`No submissions for Assignment ID ${assignmentId}.`);
+                return;
+            }
+            let submissionDetails = `Submissions for Assignment ID ${assignmentId}:\n\n`;
+            relevantSubmissions.forEach(s => {
+                submissionDetails += `Student: ${s.student}\n`;
+                if (s.type === 'project') {
+                    submissionDetails += `Project Idea: ${s.projectIdea}\n`;
+                } else {
+                    submissionDetails += `Topic: ${s.topic}\n`;
+                    submissionDetails += `Questions and Answers:\n`;
+                    s.questions.forEach((q, idx) => {
+                        submissionDetails += `${idx + 1}. ${q}\n   Answer: ${s.answers[idx] || 'No answer provided.'}\n`;
+                    });
+                }
+                submissionDetails += `Submission: ${s.submission}\n`;
+                submissionDetails += `Status: ${s.status}\n`;
+                if (s.grade !== null) {
+                    submissionDetails += `Grade: ${s.grade}/100 (${getGradeLetter(s.grade)})\n`;
+                }
+                if (s.comments) {
+                    submissionDetails += `Comments: ${s.comments}\n`;
+                }
+                submissionDetails += '--------------------------\n';
+            });
+            alert(submissionDetails);
+        }
+
+        // Function to handle grading a submission
+        function gradeSubmission(submissionId) {
+            const submission = submissions.find(s => s.id === submissionId);
+            if (!submission) return;
+            const grade = prompt('Enter grade (0-100):', submission.grade !== null ? submission.grade : '');
+            if (grade === null) return; // Cancelled
+            const numericGrade = parseFloat(grade);
+            if (isNaN(numericGrade) || numericGrade < 0 || numericGrade > 100) {
+                alert('Invalid grade entered.');
+                return;
+            }
+            const comments = prompt('Enter comments:', submission.comments || '');
+            if (comments === null) return; // Cancelled
+            // Update the submission
+            submission.grade = numericGrade;
+            submission.comments = comments;
+            submission.status = 'graded';
+            alert('Submission graded successfully!');
+            loadTeacherSection('studentSubmissions');
+            loadTeacherSection('classAverages');
+        }
+
+        // Function to get grade letter
+        function getGradeLetter(score) {
+            for (const boundary of gradeBoundaries) {
+                if (score >= boundary.minScore) {
+                    return boundary.grade;
+                }
+            }
+            return 'F';
+        }
+
+        // Function to calculate class averages
+        function calculateClassAverages() {
+            const studentGrades = {};
+            submissions.forEach(sub => {
+                if (sub.status === 'graded' && sub.grade !== null) {
+                    if (!studentGrades[sub.student]) {
+                        studentGrades[sub.student] = [];
+                    }
+                    studentGrades[sub.student].push(sub.grade);
+                }
+            });
+            const studentAverages = [];
+            let total = 0;
+            let count = 0;
+            for (const student in studentGrades) {
+                const grades = studentGrades[student];
+                const average = grades.reduce((a, b) => a + b, 0) / grades.length;
+                studentAverages.push({ student, average });
+                total += average;
+                count++;
+            }
+            const overall = count > 0 ? total / count : null;
+            return { studentAverages, overall };
+        }
+
+        // Function to render class average chart
+        function renderClassAverageChart(studentAverages) {
+            const ctx = document.getElementById('classAverageChart').getContext('2d');
+            const labels = studentAverages.map(sa => sa.student);
+            const data = studentAverages.map(sa => sa.average);
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Grade',
+                        data: data,
+                        backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Class Average Grades'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y}/100`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to load different sections in Student Dashboard
+        function loadStudentSection(section) {
+            const studentContent = document.getElementById('studentContent');
+            studentContent.innerHTML = ''; // Clear previous content
+            if (section === 'viewAssignments') {
+                studentContent.innerHTML = `
+                    <div class="card">
+                        <h3>Your Assignments</h3>
+                        <div id="assignmentsList"></div>
+                    </div>
+                `;
+                displayStudentAssignments();
+            } else if (section === 'mySubmissions') {
+                studentContent.innerHTML = `
+                    <div class="card">
+                        <h3>My Submissions</h3>
+                        ${submissions.filter(s => s.student === currentUser.username).length > 0 ? submissions.filter(s => s.student === currentUser.username).map(s => `
+                            <div class="project-card">
+                                <p><strong>Assignment ID:</strong> ${s.assignmentId}</p>
+                                <p><strong>Type:</strong> ${s.type === 'project' ? 'Project' : 'Quickfire Questions'}</p>
+                                ${s.type === 'project' ? `
+                                    <p><strong>Project Idea:</strong> ${s.projectIdea}</p>
+                                ` : `
+                                    <p><strong>Topic:</strong> ${s.topic}</p>
+                                    <p><strong>Questions and Answers:</strong></p>
+                                    <ol>
+                                        ${s.questions.map((q, idx) => `
+                                            <li>
+                                                <strong>${q}</strong><br>
+                                                <em>Answer:</em> ${s.answers[idx] || '<span style="color: #6b7280;">No answer provided.</span>'}
+                                            </li>
+                                        `).join('')}
+                                    </ol>
+                                `}
+                                <p><strong>Submission:</strong> ${s.submission}</p>
+                                <p><strong>Status:</strong> <span class="${
+                                    s.status === 'submitted' ? 'status-submitted' : 
+                                    s.status === 'graded' ? 'status-graded' : 'status-pending'}">${
+                                        s.status === 'submitted' ? 'Submitted' : 
+                                        s.status === 'graded' ? 'Graded' : 'Pending'}</span></p>
+                                ${s.grade !== null ? `<p><strong>Grade:</strong> ${s.grade}/100 (${getGradeLetter(s.grade)})</p>` : ''}
+                                ${s.comments ? `<p><strong>Comments:</strong> ${s.comments}</p>` : ''}
+                            </div>
+                        `).join('') : '<p>No submissions yet.</p>'}
+                    </div>
+                `;
+            } else if (section === 'averageGrade') {
+                const average = calculateStudentAverage();
+                studentContent.innerHTML = `
+                    <div class="card">
+                        <h3>Your Average Grade</h3>
+                        <p><strong>Average Grade:</strong> ${average !== null ? average.toFixed(2) + '/100' : 'N/A'}</p>
+                    </div>
+                `;
+            }
+        }
+
+        // Function to display student assignments
+        function displayStudentAssignments() {
+            const assignmentsList = document.getElementById('assignmentsList');
+            if (assignments.length === 0) {
+                assignmentsList.innerHTML = '<p>No assignments available at the moment.</p>';
+                return;
+            }
+            assignmentsList.innerHTML = assignments.map(assignment => `
+                <div class="project-card">
+                    <p><strong>Assignment ID:</strong> ${assignment.id}</p>
+                    <p><strong>Type:</strong> ${assignment.type === 'project' ? 'Project' : 'Quickfire Questions'}</p>
+                    ${assignment.type === 'project' ? `
+                        <p><strong>Skills:</strong> ${assignment.skills.join(', ')}</p>
+                        <p><strong>Due Date:</strong> ${assignment.dueDate}</p>
+                        ${hasStudentSubmitted(assignment.id) ? '<p><em>Already Submitted</em></p>' : `<button class="btn startAssignmentBtn" data-assignment-id="${assignment.id}">Start Assignment</button>`}
+                    ` : `
+                        <p><strong>Topics:</strong> ${assignment.topics.join(', ')}</p>
+                        ${hasQuickfireSubmitted(assignment.id) ? '<p><em>Already Completed</em></p>' : `<button class="btn startQuickfireBtn" data-assignment-id="${assignment.id}">Start Quickfire</button>`}
+                    `}
+                </div>
+            `).join('');
+            // Attach event listeners to dynamically created buttons
+            document.querySelectorAll('.startAssignmentBtn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const assignmentId = parseInt(button.getAttribute('data-assignment-id'));
+                    startAssignment(assignmentId);
+                });
+            });
+            document.querySelectorAll('.startQuickfireBtn').forEach(button => {
+                button.addEventListener('click', () => {
+                    const assignmentId = parseInt(button.getAttribute('data-assignment-id'));
+                    startQuickfire(assignmentId);
+                });
+            });
+        }
+
+        // Function to check if student has submitted a project assignment
+        function hasStudentSubmitted(assignmentId) {
+            return submissions.some(s => s.assignmentId === assignmentId && s.type === 'project');
+        }
+
+        // Function to check if student has completed a quickfire assignment
+        function hasQuickfireSubmitted(assignmentId) {
+            return submissions.some(s => s.assignmentId === assignmentId && s.type === 'quickfire');
+        }
+
+        // Function to start a project assignment
+        function startAssignment(assignmentId) {
+            const topic = prompt('Enter your project topic:');
+            if (!topic) {
+                alert('Topic is required to generate your project.');
+                return;
+            }
+            // Generate project idea based on the topic
+            const projectIdea = `Develop a comprehensive project on "${topic}" that demonstrates your understanding and application of the selected skills.`;
+            // Submit the assignment
+            const submission = {
+                id: submissions.length + 1,
+                assignmentId: assignmentId,
+                student: currentUser.username,
+                type: 'project',
+                projectIdea: projectIdea,
+                submission: projectIdea, // In real scenario, this would be more detailed
+                status: 'submitted',
+                grade: null,
+                comments: null
+            };
+            submissions.push(submission);
+            alert('Project submitted successfully!');
+            loadStudentSection('mySubmissions');
+        }
+
+        // Function to start a quickfire questions assignment
+        function startQuickfire(assignmentId) {
+            const assignment = assignments.find(a => a.id === assignmentId && a.type === 'quickfire');
+            if (!assignment) return;
+            const topic = prompt('Enter a topic for Quickfire Questions:');
+            if (!topic) {
+                alert('Topic is required to generate questions.');
+                return;
+            }
+            const questions = generateQuickfireQuestions(topic);
+            // Display the modal with questions and answer fields
+            openQuickfireModal(assignmentId, topic, questions);
+        }
+
+        // Function to generate quickfire questions based on the topic
+        function generateQuickfireQuestions(topic) {
+            const templates = [
+                `1. What is the significance of ${topic} in modern society?`,
+                `2. How has ${topic} evolved over the past decade?`,
+                `3. What are the primary challenges associated with ${topic}?`,
+                `4. How does ${topic} impact daily life?`,
+                `5. What future developments do you foresee in ${topic}?`,
+                `6. How does ${topic} relate to other key areas in its field?`,
+                `7. What are the ethical considerations surrounding ${topic}?`,
+                `8. How does ${topic} influence global trends?`,
+                `9. What role does ${topic} play in technological advancements?`,
+                `10. How can individuals contribute to the growth of ${topic}?`
+            ];
+            return templates.map(template => template.replace('${topic}', topic));
+        }
+
+        // Function to open the Quickfire modal with questions
+        function openQuickfireModal(assignmentId, topic, questions) {
+            const modal = document.getElementById('quickfireModal');
+            const questionsContainer = document.getElementById('questionsContainer');
+            questionsContainer.innerHTML = `
+                <p><strong>Topic:</strong> ${topic}</p>
+                ${questions.map((q, idx) => `
+                    <div class="form-group">
+                        <label for="question-${idx + 1}">${q}</label>
+                        <textarea id="question-${idx + 1}" rows="3" placeholder="Enter your answer here..."></textarea>
+                    </div>
+                `).join('')}
+            `;
+            modal.style.display = 'flex';
+
+            // Handle form submission
+            const quickfireForm = document.getElementById('quickfireForm');
+            quickfireForm.onsubmit = function(event) {
+                event.preventDefault();
+                const answers = questions.map((q, idx) => {
+                    return document.getElementById(`question-${idx + 1}`).value.trim();
+                });
+                // Store the answers in the submission
+                const submission = {
+                    id: submissions.length + 1,
+                    assignmentId: assignmentId,
+                    student: currentUser.username,
+                    type: 'quickfire',
+                    topic: topic,
+                    questions: [...questions],
+                    answers: [...answers],
+                    submission: 'Quickfire Questions Completed',
+                    status: 'submitted',
+                    grade: null,
+                    comments: null
+                };
+                submissions.push(submission);
+                alert('Quickfire Questions submitted successfully!');
+                modal.style.display = 'none';
+                loadStudentSection('mySubmissions');
+            };
+        }
+
+        // Function to close the Quickfire modal
+        function closeQuickfireModal() {
+            const modal = document.getElementById('quickfireModal');
+            modal.style.display = 'none';
+        }
+
+        // Event listener for closing the modal
+        document.getElementById('closeQuickfireModal').addEventListener('click', closeQuickfireModal);
+
+        // Close the modal when clicking outside the modal content
+        window.addEventListener('click', function(event) {
+            const modal = document.getElementById('quickfireModal');
+            if (event.target === modal) {
+                modal.style.display = 'none';
+            }
+        });
+
+        // Function to calculate student's average grade
+        function calculateStudentAverage() {
+            const studentSubs = submissions.filter(s => s.student === currentUser.username && s.grade !== null);
+            if (studentSubs.length === 0) return null;
+            const total = studentSubs.reduce((sum, s) => sum + s.grade, 0);
+            return total / studentSubs.length;
+        }
+
+        // Function to display student's average grade
+        function displayStudentAverageGrade() {
+            loadStudentSection('averageGrade');
+        }
+
+        // Function to render class average chart
+        function renderClassAverageChart(studentAverages) {
+            const ctx = document.getElementById('classAverageChart').getContext('2d');
+            const labels = studentAverages.map(sa => sa.student);
+            const data = studentAverages.map(sa => sa.average);
+            new Chart(ctx, {
+                type: 'bar',
+                data: {
+                    labels: labels,
+                    datasets: [{
+                        label: 'Average Grade',
+                        data: data,
+                        backgroundColor: 'rgba(37, 99, 235, 0.6)',
+                        borderColor: 'rgba(37, 99, 235, 1)',
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            max: 100
+                        }
+                    },
+                    plugins: {
+                        title: {
+                            display: true,
+                            text: 'Class Average Grades'
+                        },
+                        tooltip: {
+                            callbacks: {
+                                label: function(context) {
+                                    return `${context.parsed.y}/100`;
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+        }
+
+        // Function to calculate class averages
+        function calculateClassAverages() {
+            const studentGrades = {};
+            submissions.forEach(sub => {
+                if (sub.status === 'graded' && sub.grade !== null) {
+                    if (!studentGrades[sub.student]) {
+                        studentGrades[sub.student] = [];
+                    }
+                    studentGrades[sub.student].push(sub.grade);
+                }
+            });
+            const studentAverages = [];
+            let total = 0;
+            let count = 0;
+            for (const student in studentGrades) {
+                const grades = studentGrades[student];
+                const average = grades.reduce((a, b) => a + b, 0) / grades.length;
+                studentAverages.push({ student, average });
+                total += average;
+                count++;
+            }
+            const overall = count > 0 ? total / count : null;
+            return { studentAverages, overall };
+        }
+
+        // Function to reset navigation (remove active classes)
+        function resetNavigation() {
+            document.querySelectorAll('.nav-item').forEach(item => item.classList.remove('active'));
+        }
+
+        // Function to handle navigation clicks for Teacher Dashboard
+        document.querySelectorAll('#teacherDashboard .nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove 'active' class from all nav items
+                document.querySelectorAll('#teacherDashboard .nav-item').forEach(nav => nav.classList.remove('active'));
+                // Add 'active' class to the clicked nav item
+                item.classList.add('active');
+                // Load the corresponding section
+                loadTeacherSection(item.getAttribute('data-section'));
+            });
+        });
+
+        // Function to handle navigation clicks for Student Dashboard
+        document.querySelectorAll('#studentDashboard .nav-item').forEach(item => {
+            item.addEventListener('click', () => {
+                // Remove 'active' class from all nav items
+                document.querySelectorAll('#studentDashboard .nav-item').forEach(nav => nav.classList.remove('active'));
+                // Add 'active' class to the clicked nav item
+                item.classList.add('active');
+                // Load the corresponding section
+                loadStudentSection(item.getAttribute('data-section'));
+            });
+        });
+
+        // Event listeners for Register and Login toggle links
+        document.getElementById('showRegister').addEventListener('click', toggleForms);
+        document.getElementById('showLogin').addEventListener('click', toggleForms);
+
+        // Event listeners for Register and Login buttons
+        document.getElementById('registerButton').addEventListener('click', register);
+        document.getElementById('loginButton').addEventListener('click', login);
+
+        // Event listeners for Logout buttons
+        document.getElementById('logoutTeacher').addEventListener('click', logout);
+        document.getElementById('logoutStudent').addEventListener('click', logout);
+
+        // Function to display rotating quotes on the login page
+        function displayLoginQuotes() {
+            let index = 0;
+            const quoteElement = document.getElementById('loginQuote');
+            function showNextQuote() {
+                quoteElement.textContent = quotes[index];
+                index = (index + 1) % quotes.length;
+            }
+            showNextQuote();
+            setInterval(showNextQuote, 10000); // Change quote every 10 seconds
+        }
+
+        // Initialize the login page quotes
+        displayLoginQuotes();
+    </script>
+</body>
+</html>
